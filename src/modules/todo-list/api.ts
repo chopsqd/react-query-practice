@@ -1,4 +1,4 @@
-import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { jsonApiInstance } from "../../shared/api/api-instance.ts";
 
 export type PaginatedResult<T> = {
@@ -15,43 +15,53 @@ export type TodoDTO = {
   id: string
   text: string
   done: boolean
+  userId: string
 }
 
 export const todoListApi = {
-  // getTodoList: (
-  //   { page }: { page: number },
-  //   { signal }: { signal: AbortSignal }
-  // ) => {
-  //   return fetch(
-  //     `${BASE_URL}/tasks?_page=${page}&_per_page=10`,
-  //     { signal }
-  //   ).then(
-  //     res => res.json() as Promise<PaginatedResult<TodoDTO>>
-  //   );
+  // getTodoListInfiniteQueryOptions: () => {
+  //   return infiniteQueryOptions({
+  //     queryKey: ["tasks", "list"],
+  //     // queryFn: (meta) => todoListApi.getTodoList({ page: meta.pageParam }, meta),
+  //     queryFn: meta =>
+  //       jsonApiInstance<PaginatedResult<TodoDTO>>(`/tasks?_page=${meta.pageParam}&_per_page=10`, {
+  //         signal: meta.signal
+  //       }),
+  //     initialPageParam: 1, // начальное значение параметра страницы
+  //     getNextPageParam: (result) => result.next, // функция, которая из ответа текущей страницы извлекает параметр для следующей
+  //     // getPreviousPageParam: (result) => result.prev, // функция, которая из ответа текущей страницы извлекает параметр для предыдущей
+  //     select: (result) => result.pages.flatMap(page => page.data) // Подготовка данных перед отображением
+  //   });
   // },
+  baseKey: 'tasks',
 
-  getTodoListQueryOptions: ({ page }: { page: number }) => {
+  getTodoListQueryOptions: () => {
     return queryOptions({
-      queryKey: ["tasks", "list", { page }],
+      queryKey: [todoListApi.baseKey, "list"],
       queryFn: meta =>
-        jsonApiInstance<PaginatedResult<TodoDTO>>(`/tasks?_page=${page}&_per_page=10`, {
+        jsonApiInstance<TodoDTO[]>(`/tasks`, {
           signal: meta.signal
         })
     });
   },
 
-  getTodoListInfiniteQueryOptions: () => {
-    return infiniteQueryOptions({
-      queryKey: ["tasks", "list"],
-      // queryFn: (meta) => todoListApi.getTodoList({ page: meta.pageParam }, meta),
-      queryFn: meta =>
-        jsonApiInstance<PaginatedResult<TodoDTO>>(`/tasks?_page=${meta.pageParam}&_per_page=10`, {
-          signal: meta.signal
-        }),
-      initialPageParam: 1, // начальное значение параметра страницы
-      getNextPageParam: (result) => result.next, // функция, которая из ответа текущей страницы извлекает параметр для следующей
-      // getPreviousPageParam: (result) => result.prev, // функция, которая из ответа текущей страницы извлекает параметр для предыдущей
-      select: (result) => result.pages.flatMap(page => page.data) // Подготовка данных перед отображением
-    });
+  createTodo: (data: TodoDTO) => {
+    return jsonApiInstance<TodoDTO>(`/tasks`, {
+      method: 'POST',
+      json: data
+    })
+  },
+
+  updateTodo: (data: Partial<TodoDTO> & { id: string }) => {
+    return jsonApiInstance<TodoDTO>(`/tasks/${data.id}`, {
+      method: 'PATCH',
+      json: data
+    })
+  },
+
+  deleteTodo: (id: string) => {
+    return jsonApiInstance(`/tasks/${id}`, {
+      method: 'DELETE'
+    })
   }
 };
