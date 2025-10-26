@@ -1,5 +1,21 @@
 import { TodoList } from "../modules/todo-list/todo-list.tsx";
+import { useUser } from "../modules/auth/use-user.ts";
+import { Login } from "../modules/auth/login.tsx";
+import { LogoutButton } from "../modules/auth/logout-button.tsx";
 
 export function App() {
-  return <TodoList/>;
+  const user = useUser();
+
+  if (user.isLoading) {
+    return <div>Загрузка...</div>;
+  }
+
+  if (user.data) {
+    return <>
+      <LogoutButton />
+      <TodoList />
+    </>;
+  }
+
+  return <Login />;
 }

@@ -1,7 +1,8 @@
 import { useTodoList } from "./use-todo-list.ts";
-import { useCreateTodo } from "./use-create-todo.ts";
 import { useDeleteTodo } from "./use-delete-todo.ts";
 import { useUpdateTodo } from "./use-update-todo.ts";
+import { useUser } from "../auth/use-user.ts";
+import { useCreateTodo } from "./use-create-todo.ts";
 
 // const { data: todoItems, error,  isLoading, isPlaceholderData } = useQuery({
 //   queryKey: ["tasks", "list", { page }],
@@ -16,11 +17,12 @@ import { useUpdateTodo } from "./use-update-todo.ts";
 // isPlaceholderData - Данные — временная заглушка
 
 export function TodoList() {
-  const {error, isLoading, todoItems} = useTodoList()
+  const { error, isLoading, todoItems } = useTodoList();
+  const user = useUser();
 
-  const createTodo = useCreateTodo()
-  const deleteTodo = useDeleteTodo()
-  const updateTodo = useUpdateTodo()
+  const createTodo = useCreateTodo();
+  const deleteTodo = useDeleteTodo();
+  const updateTodo = useUpdateTodo();
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -32,11 +34,25 @@ export function TodoList() {
 
   return (
     <div className={"p-5 mx-auto max-w-[1200px] mt-10"}>
-      <h1 className={"text-3xl font-bold mb-5"}>Todo List:</h1>
+      <h1 className={"text-3xl font-bold mb-5"}>
+        Todo List: {user.data?.login}
+      </h1>
 
-      <form onSubmit={createTodo.handleCreate} className={"flex gap-2 mb-5"}>
-        <input className={"rounded p-2 border border-teal-500"} type="text" name="text" />
-        <button disabled={createTodo.isPending} className={"rounded p-2 border border-teal-500 disabled:opacity-50"}>Создать</button>
+      <form
+        onSubmit={createTodo.handleCreate}
+        className={"flex gap-2 mb-5"}
+      >
+        <input
+          className={"rounded p-2 border border-teal-500"}
+          type="text"
+          name="text"
+        />
+        <button
+          disabled={createTodo.isLoading}
+          className={"rounded p-2 border border-teal-500 disabled:opacity-50"}
+        >
+          Создать
+        </button>
       </form>
 
       <div className={"flex flex-col gap-4"}>
@@ -51,7 +67,7 @@ export function TodoList() {
                 checked={todo.done}
                 type="checkbox"
               />
-              <span className={todo.done ? 'line-through' : ''}>{todo.text}</span>
+              <span className={todo.done ? "line-through" : ""}>{todo.text}</span>
             </div>
             <button
               disabled={deleteTodo.getIsPending(todo.id)}
