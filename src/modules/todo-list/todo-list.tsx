@@ -1,7 +1,7 @@
 import { useTodoList } from "./use-todo-list.ts";
 import { useDeleteTodo } from "./use-delete-todo.ts";
 import { useUpdateTodo } from "./use-update-todo.ts";
-import { useUser } from "../auth/use-user.ts";
+import { useSuspenseUser, useUser } from "../auth/use-user.ts";
 import { useCreateTodo } from "./use-create-todo.ts";
 
 // const { data: todoItems, error,  isLoading, isPlaceholderData } = useQuery({
@@ -17,25 +17,22 @@ import { useCreateTodo } from "./use-create-todo.ts";
 // isPlaceholderData - Данные — временная заглушка
 
 export function TodoList() {
-  const { error, isLoading, todoItems } = useTodoList();
-  const user = useUser();
+  // const { error, isLoading, todoItems } = useTodoList();
+  const { todoItems } = useTodoList();
+  // const user = useUser(); ==> <h1>Todo List: {user.data?.login}</h1>
+  const {data: user} = useSuspenseUser();
 
   const createTodo = useCreateTodo();
   const deleteTodo = useDeleteTodo();
   const updateTodo = useUpdateTodo();
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {JSON.stringify(error)}</div>;
-  }
+  // if (isLoading) return <div>Loading...</div>;
+  // if (error) return <div>Error: {JSON.stringify(error)}</div>;
 
   return (
     <div className={"p-5 mx-auto max-w-[1200px] mt-10"}>
       <h1 className={"text-3xl font-bold mb-5"}>
-        Todo List: {user.data?.login}
+        Todo List: {user.login}
       </h1>
 
       <form

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { authApi } from "./api.ts";
 import { useAppSelector } from "../../shared/store/redux.ts";
 import { authSlice } from "./auth.slice.ts";
@@ -9,5 +9,13 @@ export function useUser() {
   return useQuery({
     ...authApi.getUserById(userId!),
     enabled: Boolean(userId)
+  })
+}
+
+export function useSuspenseUser() {
+  const userId = useAppSelector(authSlice.selectors.userId)
+
+  return useSuspenseQuery({
+    ...authApi.getUserById(userId!),
   })
 }

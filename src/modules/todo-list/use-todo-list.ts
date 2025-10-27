@@ -1,13 +1,22 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { todoListApi } from "./api.ts";
 
+// export function useTodoList() {
+//   const { data: todoItems, error, isLoading } = useQuery({
+//     ...todoListApi.getTodoListQueryOptions(),
+//     select: data => data.toReversed()
+//   });
+//
+//   return {error, todoItems, isLoading}
+// }
+
 export function useTodoList() {
-  const { data: todoItems, error, isLoading } = useQuery({
+  const { data: todoItems } = useSuspenseQuery({
     ...todoListApi.getTodoListQueryOptions(),
     select: data => data.toReversed()
   });
 
-  return {error, todoItems, isLoading}
+  return { todoItems };
 }
 
 // export function useTodoList() {
